@@ -10,6 +10,22 @@
   <a href="https://github.com/gotzastory/donata/issues"><img src="https://img.shields.io/github/issues/gotzastory/donata" alt="Issues"></a>
 </p>
 
+## Table of Contents
+
+- [Overview](#overview)
+  - [Features](#features)
+- [Architecture](#architecture)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Using Docker (recommended)](#using-docker-recommended)
+  - [Local development (without Docker)](#local-development-without-docker)
+- [Configuration](#configuration)
+- [Stripe Webhook Setup](#stripe-webhook-setup)
+- [Endpoints](#endpoints)
+- [OBS Setup](#obs-setup)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Overview
 
 Donata is a self-hosted donation system for streamers. Viewers donate via Stripe Checkout (PromptPay or card, THB), and each successful donation triggers a real-time alert on an OBS overlay — complete with a ding sound, a generated avatar, and the donation message read aloud via text-to-speech.
@@ -31,6 +47,10 @@ Donata is a self-hosted donation system for streamers. Viewers donate via Stripe
 - Frontend: static HTML/CSS/vanilla JS (`public/`) — donation form (`index.html`) and stream overlay (`overlay.html`)
 - Payments: Stripe Checkout Sessions + webhook (`/stripe-webhook`)
 - TTS: server-side synthesis via Google Translate's unofficial endpoint, played back in the overlay
+
+![Donata architecture](architecture-icons.svg)
+
+![Donata architecture (Eraser)](architecture-eraser.svg)
 
 ## Installation
 
