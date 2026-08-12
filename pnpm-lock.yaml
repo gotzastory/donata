@@ -18,8 +18,8 @@ importers:
         specifier: ^4.21.2
         version: 4.22.2
       stripe:
-        specifier: ^17.5.0
-        version: 17.7.0
+        specifier: ^22.4.0
+        version: 22.4.0(@types/node@22.20.1)
       ws:
         specifier: ^8.18.0
         version: 8.21.3
@@ -30,9 +30,6 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.20.1
-      '@types/stripe':
-        specifier: ^8.0.417
-        version: 8.0.417
       '@types/ws':
         specifier: ^8.5.13
         version: 8.18.1
@@ -110,10 +107,6 @@ packages:
 
   '@types/strip-json-comments@0.0.30':
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
-
-  '@types/stripe@8.0.417':
-    resolution: {integrity: sha512-PTuqskh9YKNENnOHGVJBm4sM0zE8B1jZw1JIskuGAPkMB+OH236QeN8scclhYGPA4nG6zTtPXgwpXdp+HPDTVw==}
-    deprecated: This is a stub types definition. stripe provides its own type definitions, so you do not need this installed.
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -521,9 +514,14 @@ packages:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
 
-  stripe@17.7.0:
-    resolution: {integrity: sha512-aT2BU9KkizY9SATf14WhhYVv2uOapBWX0OFWF4xvcj1mPaNotlSc2CsxpS4DS46ZueSppmCF5BX1sNYBtwBvfw==}
-    engines: {node: '>=12.*'}
+  stripe@22.4.0:
+    resolution: {integrity: sha512-LVJ+tcSYeqOSnXr3i+Kz2tZ7y0crLLdP2uwD/4wccrmEVyn0g/Heo0pF7as7rxS/sOjJzrb1lxgZY0Y0Dx1pSA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
@@ -688,10 +686,6 @@ snapshots:
   '@types/strip-bom@3.0.0': {}
 
   '@types/strip-json-comments@0.0.30': {}
-
-  '@types/stripe@8.0.417':
-    dependencies:
-      stripe: 17.7.0
 
   '@types/ws@8.18.1':
     dependencies:
@@ -1126,10 +1120,9 @@ snapshots:
 
   strip-json-comments@2.0.1: {}
 
-  stripe@17.7.0:
-    dependencies:
+  stripe@22.4.0(@types/node@22.20.1):
+    optionalDependencies:
       '@types/node': 22.20.1
-      qs: 6.15.3
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
