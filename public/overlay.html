@@ -30,14 +30,6 @@
             -ms-user-select: none;
             pointer-events: none;
         }
-        #test-button {
-            user-select: auto;
-            -webkit-user-select: auto;
-            -moz-user-select: auto;
-            -ms-user-select: auto;
-            pointer-events: auto;
-            cursor: pointer;
-        }
         #alert-container {
             position: fixed;
             left: 50%;
@@ -92,7 +84,7 @@
             flex-shrink: 0;
         }
 
-        .icon-container img {
+        .icon-container svg {
             width: 48px;
             height: 48px;
             animation: pulse 2s infinite;
@@ -192,7 +184,7 @@
                 padding: 12px;
             }
 
-            .icon-container img {
+            .icon-container svg {
                 width: 36px;
                 height: 36px;
             }
@@ -215,6 +207,53 @@
     <div id="alert-container"></div>
 
     <script>
+        function playDingSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = ctx.currentTime;
+
+                [880, 1320].forEach((freq, i) => {
+                    const oscillator = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    oscillator.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = freq;
+
+                    const start = now + i * 0.12;
+                    gain.gain.setValueAtTime(0, start);
+                    gain.gain.linearRampToValueAtTime(0.3, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
+
+                    oscillator.start(start);
+                    oscillator.stop(start + 0.4);
+                });
+            } catch (error) {
+                console.error('Ding sound error:', error);
+            }
+        }
+
+        function generateAvatarSvg(nickname) {
+            const initial = (nickname || '?').trim().charAt(0).toUpperCase() || '?';
+
+            let hash = 0;
+            for (let i = 0; i < nickname.length; i++) {
+                hash = nickname.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = Math.abs(hash) % 360;
+            const bgColor = `hsl(${hue}, 65%, 45%)`;
+
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+                    <circle cx="24" cy="24" r="24" fill="${bgColor}" />
+                    <text x="24" y="24" text-anchor="middle" dominant-baseline="central"
+                          font-family="'Tactic Round', sans-serif" font-size="22" font-weight="bold"
+                          fill="#ffffff">${initial}</text>
+                </svg>
+            `;
+        }
+
         class AlertQueue {
             constructor() {
                 this.queue = [];
@@ -280,23 +319,25 @@
                         return div.innerHTML;
                     };
 
-                    let nickname, amount, message;
+                    let nickname, amount, message, audioContent;
 
                     if (data.metadata) {
                         nickname = sanitizeHtml(data.metadata.nickname);
                         amount = parseFloat(data.amount) / 100;
                         message = data.metadata.message ? sanitizeHtml(data.metadata.message) : '';
+                        audioContent = data.audioContent || null;
                     } else {
                         nickname = sanitizeHtml(data.nickname);
                         amount = parseFloat(data.amount) / 100;
                         message = data.message ? sanitizeHtml(data.message) : '';
+                        audioContent = data.audioContent || null;
                     }
 
                     alertBox.innerHTML = `
                         <div class="progress-bar"></div>
                         <div class="alert-content">
                             <div class="icon-container">
-                                <img src="/images/logo.svg" alt="Logo">
+                                ${generateAvatarSvg(nickname)}
                             </div>
                             <div class="text-content">
                                 <div class="alert-header">
@@ -312,7 +353,12 @@
                     container.innerHTML = '';
                     container.appendChild(alertBox);
 
-                    if (message && 'speechSynthesis' in window) {
+                    playDingSound();
+
+                    if (audioContent) {
+                        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+                        audio.play().catch(err => console.error('Audio playback error:', err));
+                    } else if (message && 'speechSynthesis' in window) {
                         const utterance = new SpeechSynthesisUtterance(message);
                         utterance.lang = 'th-TH';
 
@@ -375,21 +421,6 @@
         };
 
         connectWebSocket();
-
-        const testButton = document.createElement('button');
-        testButton.id = 'test-button';
-        testButton.innerHTML = 'Test Alert';
-        testButton.style = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 10px;';
-        testButton.onclick = () => {
-            for(let i = 1; i <= 3; i++) {
-                alertQueue.add({
-                    nickname: `TestUser${i}`,
-                    amount: 1500,
-                    message: `Test message #${i}!`
-                });
-            }
-        };
-        document.body.appendChild(testButton);
     </script>
 </body>
 </html>
