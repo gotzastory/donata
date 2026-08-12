@@ -48,9 +48,7 @@ Donata is a self-hosted donation system for streamers. Viewers donate via Stripe
 - Payments: Stripe Checkout Sessions + webhook (`/stripe-webhook`)
 - TTS: server-side synthesis via Google Translate's unofficial endpoint, played back in the overlay
 
-![Donata architecture](architecture-icons.svg)
-
-![Donata architecture (Eraser)](architecture-eraser.svg)
+![Donata architecture (Eraser v2)](architecture-eraser-v2.png)
 
 ## Installation
 
