@@ -1,5 +1,5 @@
 body {
-    font-family: var(--system-fonts);
+    font-family: var(--font-body);
     margin: 0;
     padding: 0;
     background: var(--dark-blue);
@@ -22,8 +22,9 @@ body {
 }
 
 h1, h2 {
+    font-family: var(--font-display);
     color: var(--green);
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 1.5rem;
 }
 
@@ -57,57 +58,6 @@ input:focus, textarea:focus {
     border-color: var(--green);
 }
 
-.participants-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-}
-
-.participant-card {
-    background: var(--dark-blue);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.participant-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(56, 212, 48, 0.2);
-}
-
-.participant-card.selected {
-    border: 2px solid var(--green);
-}
-
-.vote-amounts {
-    display: flex;
-    gap: 1rem;
-    margin: 1.5rem 0;
-}
-
-.vote-button {
-    flex: 1;
-    padding: 1rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: var(--dark-blue);
-    color: var(--ultra-light-blue);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.vote-button:hover {
-    background: var(--green);
-}
-
-.vote-button.selected {
-    background: var(--green);
-    color: var(--dark-blue);
-}
-
 .submit-button {
     width: 100%;
     padding: 1rem;
@@ -128,6 +78,11 @@ input:focus, textarea:focus {
 
 .submit-button:active {
     transform: translateY(0);  /* button returns to position on click */
+}
+
+.submit-button:focus-visible {
+    outline: 2px solid var(--ultra-light-blue);
+    outline-offset: 2px;
 }
 
 .error {
@@ -156,26 +111,3 @@ input:focus, textarea:focus {
     transform: translateY(0);
 }
 
-.header-section {
-    width: 100%;
-    padding: 1rem;
-    box-sizing: border-box;
-}
-
-.header-image {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.main-header-image {
-    width: 100%;
-    height: auto;
-    border-radius: 1rem;
-}
-
-/* Mobile device adjustments */
-@media (max-width: 640px) {
-    .header-section {
-        padding: 0.5rem;
-    }
-}

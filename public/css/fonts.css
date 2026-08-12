@@ -1,4 +1,6 @@
-/* System font stack that provides good coverage across different operating systems */
+/* System font stack fallback for browsers without the webfonts loaded yet */
 :root {
     --system-fonts: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Kanit', var(--system-fonts);
+    --font-body: 'IBM Plex Sans Thai', var(--system-fonts);
 }
