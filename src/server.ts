@@ -35,7 +35,7 @@ const wss = new WebSocketServer({ server });
 const clients = new Set<WebSocket>();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia'
+  apiVersion: '2025-02-24.acacia'
 });
 
 app.use(express.json());
@@ -79,10 +79,10 @@ const createPayment: RequestHandler = async (req, res, next): Promise<void> => {
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['blik', 'p24', 'card'],
+      payment_method_types: ['promptpay', 'card'],
       line_items: [{
         price_data: {
-          currency: 'pln',
+          currency: 'thb',
           product_data: {
             name: participant ? `Vote for: ${participant.name}` : 'Donate',
             description: message || undefined,
