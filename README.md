@@ -1,126 +1,129 @@
 # Donata
 
 <p align="center">
-  <!-- Logo will be added later -->
-  <h3 align="center">Self-hosted Open Source Donation System</h3>
+  <h3 align="center">Self-hosted Donation & Stream Alert System</h3>
 </p>
 
 <p align="center">
-  <a href="https://github.com/szymontex/donata/stargazers"><img src="https://img.shields.io/github/stars/szymontex/donata" alt="Stars"></a>
-  <a href="https://github.com/szymontex/donata/blob/main/LICENSE"><img src="https://img.shields.io/github/license/szymontex/donata" alt="License"></a>
-  <a href="https://github.com/szymontex/donata/issues"><img src="https://img.shields.io/github/issues/szymontex/donata" alt="Issues"></a>
+  <a href="https://github.com/gotzastory/donata/stargazers"><img src="https://img.shields.io/github/stars/gotzastory/donata" alt="Stars"></a>
+  <a href="https://github.com/gotzastory/donata/blob/main/LICENSE"><img src="https://img.shields.io/github/license/gotzastory/donata" alt="License"></a>
+  <a href="https://github.com/gotzastory/donata/issues"><img src="https://img.shields.io/github/issues/gotzastory/donata" alt="Issues"></a>
 </p>
 
-## 🚀 Overview
+## Overview
 
-Donata is a modern, self-hosted donation system designed for streamers and content creators. It provides a complete solution for accepting donations, managing alerts, and tracking contributions - all while maintaining full control over your donation infrastructure.
+Donata is a self-hosted donation system for streamers. Viewers donate via Stripe Checkout (PromptPay or card, THB), and each successful donation triggers a real-time alert on an OBS overlay — complete with a ding sound, a generated avatar, and the donation message read aloud via text-to-speech.
 
-### 益 Key Features
+### Features
 
-- 🥡 **Streamlined Donations**: Easy-to-use donation page with customizable fields
-- 👃 **Multiple Payment Methods**: Support for BLIK, P24, and credit cards through Stripe
-- 🌨 **Customizable Overlays**: Real-time stream overlays for donations and voting
-- 🌒 **Voting System**: Integrated voting mechanism for viewer engagement
-- 🔐 **Self-hosted**: Full control over your data and infrastructure
-- 📠 **WebSocket Integration**: Real-time updates and notifications
-- 💳 **Docker Support**: Easy deployment with Docker and Docker Compose
-- 🔐 **Secure**: Built with security best practices and data protection in mind
+- **PromptPay & Card payments** via Stripe Checkout, priced in THB
+- **Thai-localized donation page**
+- **Real-time OBS overlay** driven by WebSocket, no polling
+- **Text-to-speech**: donation messages are read aloud automatically (free, no API key — uses Google Translate's TTS endpoint, with a Web Speech API fallback)
+- **Ding sound + generated avatar** on every alert (no image assets required)
+- **Self-hosted**: full control over your data and infrastructure
+- **Docker Compose** setup that includes an optional Cloudflare Tunnel service, so you can expose your local server publicly without configuring router port forwarding
 
-## 🏇 Architecture
+## Architecture
 
-Donata consists of several key components:
-- Backend Server (Node.js + Express)
-- WebSocket Server for real-time communication
-- Frontend donation page (React + TypeScript)
-- Stream overlay system
-- CLI tools for testing and management
+- Backend: Node.js + Express + TypeScript (`src/server.ts`)
+- Real-time layer: WebSocket server (`ws`) broadcasting donation events to connected overlays
+- Frontend: static HTML/CSS/vanilla JS (`public/`) — donation form (`index.html`) and stream overlay (`overlay.html`)
+- Payments: Stripe Checkout Sessions + webhook (`/stripe-webhook`)
+- TTS: server-side synthesis via Google Translate's unofficial endpoint, played back in the overlay
 
-## 🜴 Installation
+## Installation
 
 ### Prerequisites
-- Docker and Docker Compose
-- Node.js 18+ (for local development)
-- pnpm (package manager)
-- Stripe account for payment processing
 
-### Using Docker (Recommended)
+- Docker and Docker Compose
+- A Stripe account (test mode is fine to start)
+- Node.js 18+ and pnpm (only needed for local development outside Docker)
+
+### Using Docker (recommended)
 
 ```bash
-# Clone the repository
-git clone https://github.com/szymontex/donata
+git clone https://github.com/gotzastory/donata
 cd donata
 
-# Create and configure .env file
 cp .env.example .env
+# fill in your Stripe keys in .env
 
-# Configure your Stripe keys and other settings in .env
-
-# Start using Docker Compose
-docker-compose up -d
+docker compose up -d
 ```
 
-### Local Development
+This starts two containers:
+
+- `tips` — the app, served on `http://localhost:3002`
+- `cloudflared` — a Cloudflare Quick Tunnel exposing that port publicly (no account needed). The public URL is printed in its logs:
+  ```bash
+  docker compose logs cloudflared | grep trycloudflare.com
+  ```
+  The URL changes every time the stack restarts. If you need a stable URL, set up a [named Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps) with your own domain instead, or deploy to a VPS.
+
+### Local development (without Docker)
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Start development server
-pnpm dev
+pnpm dev      # ts-node-dev, auto-reload
+pnpm build    # compile TypeScript
+pnpm start    # run compiled output
 ```
 
-## 🔜 Configuration
+## Configuration
 
-1. Copy `.env.example` to `.env`
-2. Configure your Stripe API keys
-3. Adjust port settings if needed
-4. Additional configuration options can be found in the documentation
+Set these in `.env` (see `.env.example`):
 
-## 🔤 API Endpoints & Testing
+| Variable | Description |
+| --- | --- |
+| `STRIPE_SECRET_KEY` | Stripe secret key (`sk_test_...` / `sk_live_...`) |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret for the `/stripe-webhook` endpoint |
+| `PORT` | Port the app listens on inside the container (default `3000`) |
 
-### Endpoints
-- Main donation page: `https://your-domain/`
-- Stream overlay: `https://your-domain/overlay.html`
-- Voting overlay: `https://your-domain/voting-overlay.html`
-- Stripe webhooks: `https://your-domain/stripe-webhooks`
-- Vote reset: `https://your-domain/api/votes/reset`
+In the [Stripe Dashboard → Payment methods](https://dashboard.stripe.com/settings/payment_methods), enable **PromptPay** and **Card** — the app doesn't hardcode payment methods, so Stripe dynamically shows whichever methods are enabled there.
 
-## Stripe Webhook Configuration
+## Stripe Webhook Setup
 
-1. Go to the Stripe Dashboard
-2. Navigate to Developers > Webhooks
-3. Click "Add Endpoint"
-4. Enter your webhook URL: `https://your-domain/stripe-webhooks`
-5. Select event to listen to:
-   - `payment_intent.succeeded`
-6. Ensure your API version matches the one in your .env file
-7. After creating, you'll get a Webhook Signing Secrets
-8. Add them to .env
+**Local development** — use the Stripe CLI, no public URL needed:
 
-_Note: Ensure your webhook endpoint is publicly accessible and uses HTTPS._
-
-
-### 🔷 One-line Testing Commands
-
-Test donation (15 PLN):
 ```bash
-curl -X POST http://localhost:3000/stripe-webhooks -H "Content-Type: application/json" -d "{\"type\":\"payment_intent.succeeded\",\"data\":{\"object\":{\"amount\":1500,\"metadata\":{\"participantId\":\"3\",\"participantName\":\"KXNP\",\"nickname\":\"TestowyUser\",\"message\":\"Testowa wiadomosc!\"}}}}"
+stripe listen --forward-to localhost:3002/stripe-webhook
 ```
 
-Reset votes:
-```bash
-curl -X POST "https://your-domain/api/votes/reset"
-```
+This prints a `whsec_...` secret — put it in `STRIPE_WEBHOOK_SECRET`.
 
-Multiple test donations (10 random donations):
-```bash
-for i in {1..10}; do curl -X POST "https://your-domain/stripe-webhooks" -H "Content-Type: application/json" -d "{\"type\":\"payment_intent.succeeded\",\"data\":{\"object\":{\"amount\":$((1000 + RANDOM % 5000)),\"metadata\":{\"participantId\":\"$i\",\"participantName\":\"Player $i\",\"nickname\":\"Donor$i\",\"message\":\"Test message $j!\"}}}}"; sleep 1; done
-```
+**Public / production** — in the [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks):
 
-## 💓 Contributing
+1. Add endpoint → `https://<your-public-url>/stripe-webhook`
+2. Listen for: `payment_intent.succeeded`
+3. Copy the endpoint's signing secret into `STRIPE_WEBHOOK_SECRET`
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Endpoints
 
-## 📑 License
+| Endpoint | Purpose |
+| --- | --- |
+| `/` | Donation form |
+| `/overlay.html` | OBS Browser Source — add this URL as a Browser Source in OBS |
+| `/api/create-payment` | Creates a Stripe Checkout session |
+| `/stripe-webhook` | Stripe webhook receiver (signature-verified) |
+| `/test-donation` | Fires a test alert to connected overlays (`POST`, optional JSON body `{ nickname, message }`) |
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## OBS Setup
+
+1. Add a **Browser Source**, URL: `http://localhost:3002/overlay.html` (or your public tunnel URL)
+2. In the source's Properties, uncheck **Shutdown source when not visible** and **Refresh browser when scene becomes active** — otherwise OBS reloads the page and drops its WebSocket connection between scene switches
+3. Test without a real payment:
+   ```bash
+   curl -X POST http://localhost:3002/test-donation \
+     -H "Content-Type: application/json" \
+     -d '{"nickname":"Test","message":"ทดสอบระบบ"}'
+   ```
+
+## Contributing
+
+Contributions are welcome — feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
