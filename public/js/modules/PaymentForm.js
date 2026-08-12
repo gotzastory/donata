@@ -55,13 +55,13 @@ export class PaymentForm {
 
     validateForm(data) {
         if (!data.nickname) {
-            this.showError('Please enter your nickname!');
+            this.showError('กรุณาระบุชื่อของคุณ!');
             this.elements.nickname.focus();
             return false;
         }
-    
-        if (!data.amount || data.amount < 5) {
-            this.showError('Minimum amount is 5!');
+
+        if (!data.amount || data.amount < 10) {
+            this.showError('จำนวนเงินขั้นต่ำคือ 10 บาท!');
             this.elements.amount.focus();
             return false;
         }
@@ -71,8 +71,8 @@ export class PaymentForm {
     
     validateAmount() {
         const amount = Number(this.elements.amount.value);
-        if (amount < 5) {
-            this.elements.amount.setCustomValidity('Minimum amount is 5');
+        if (amount < 10) {
+            this.elements.amount.setCustomValidity('จำนวนเงินขั้นต่ำคือ 10 บาท');
         } else {
             this.elements.amount.setCustomValidity('');
         }
@@ -94,12 +94,12 @@ export class PaymentForm {
         switch (state) {
             case 'loading':
                 button.disabled = true;
-                button.textContent = 'Processing...';
+                button.textContent = 'กำลังดำเนินการ...';
                 break;
             case 'default':
             default:
                 button.disabled = false;
-                button.textContent = 'Support';
+                button.textContent = 'สนับสนุน';
                 break;
         }
     }

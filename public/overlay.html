@@ -280,18 +280,16 @@
                         return div.innerHTML;
                     };
 
-                    let nickname, amount, message, participantName;
+                    let nickname, amount, message;
 
                     if (data.metadata) {
                         nickname = sanitizeHtml(data.metadata.nickname);
                         amount = parseFloat(data.amount) / 100;
                         message = data.metadata.message ? sanitizeHtml(data.metadata.message) : '';
-                        participantName = data.metadata.participantName ? sanitizeHtml(data.metadata.participantName) : '';
                     } else {
                         nickname = sanitizeHtml(data.nickname);
                         amount = parseFloat(data.amount) / 100;
                         message = data.message ? sanitizeHtml(data.message) : '';
-                        participantName = data.participantName ? sanitizeHtml(data.participantName) : '';
                     }
 
                     alertBox.innerHTML = `
@@ -303,8 +301,7 @@
                             <div class="text-content">
                                 <div class="alert-header">
                                     <span class="username">${nickname}</span>
-                                    ${participantName ? `<span class="participant-tag">for ${participantName}</span>` : ''}
-                                    <span class="donate-amount">${amount.toFixed(2)} PLN</span>
+                                    <span class="donate-amount">฿${amount.toFixed(2)}</span>
                                 </div>
                                 ${message ? `<div class="message">${message}</div>` : ''}
                             </div>
@@ -314,6 +311,24 @@
                     const container = document.getElementById('alert-container');
                     container.innerHTML = '';
                     container.appendChild(alertBox);
+
+                    if (message && 'speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(message);
+                        utterance.lang = 'th-TH';
+
+                        const thaiVoice = window.speechSynthesis.getVoices()
+                            .find(voice => voice.lang.toLowerCase().startsWith('th'));
+
+                        if (thaiVoice) {
+                            utterance.voice = thaiVoice;
+                        } else {
+                            console.warn('No Thai voice installed on this system. Available voices:',
+                                window.speechSynthesis.getVoices().map(v => v.lang));
+                        }
+
+                        utterance.onerror = (e) => console.error('Speech synthesis error:', e.error);
+                        window.speechSynthesis.speak(utterance);
+                    }
 
                     setTimeout(() => {
                         if (alertBox && alertBox.parentNode) {
@@ -326,6 +341,13 @@
         }
 
         const alertQueue = new AlertQueue();
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                console.log('Voices loaded:', window.speechSynthesis.getVoices().map(v => `${v.name} (${v.lang})`));
+            };
+        }
 
         const connectWebSocket = () => {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -363,8 +385,7 @@
                 alertQueue.add({
                     nickname: `TestUser${i}`,
                     amount: 1500,
-                    message: `Test message #${i}!`,
-                    participantName: `${participantName}`
+                    message: `Test message #${i}!`
                 });
             }
         };

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Donations</title>
+    <title>สนับสนุนสตรีม</title>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -13,56 +13,47 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-    <div class="header-section">
-        <div class="header-image">
-            <img src="images/header.png" alt="Header graphic" class="main-header-image">
-        </div>
-    </div>
-    
+
     <div class="container">
-        <h1>Donate to the stream and vote for a participant</h1>
-        
+        <h1>สนับสนุนช่อง GZ UKNOW</h1>
+
         <form id="payment-form" class="tip-form">
             <div class="input-group">
-                <label for="amount">Amount (USD)</label>
-                <input 
-                    type="number" 
-                    id="amount" 
+                <label for="amount">จำนวนเงิน (บาท)</label>
+                <input
+                    type="number"
+                    id="amount"
                     name="amount"
-                    min="5" 
-                    step="1" 
-                    placeholder="Enter amount or select participant below (min. 5 USD)"
+                    min="10"
+                    step="1"
+                    placeholder="ระบุจำนวนเงินหรือเลือกผู้เข้าแข่งขันด้านล่าง (ขั้นต่ำ 10 บาท)"
                     required
                 >
             </div>
 
             <div class="input-group">
-                <label for="nickname">Your nickname</label>
-                <input 
-                    type="text" 
-                    id="nickname" 
+                <label for="nickname">ชื่อของคุณ</label>
+                <input
+                    type="text"
+                    id="nickname"
                     name="nickname"
-                    placeholder="What's your name?"
+                    placeholder="ชื่อของคุณคืออะไร?"
                     required
                 >
             </div>
 
             <div class="input-group">
-                <label for="message">Message (optional)</label>
-                <textarea 
-                    id="message" 
+                <label for="message">ข้อความ (ไม่บังคับ)</label>
+                <textarea
+                    id="message"
                     name="message"
                     rows="3"
-                    placeholder="Your message..."
+                    placeholder="ข้อความของคุณ..."
                 ></textarea>
             </div>
 
-            <h2>Vote for a participant</h2>
-            <div id="participants-grid" class="participants-grid"></div>
-            <div id="vote-amounts" class="vote-amounts" style="display: none;"></div>
-
             <div id="error-message" class="error"></div>
-            <button type="submit" id="submit-button" class="submit-button">Support</button>
+            <button type="submit" id="submit-button" class="submit-button">สนับสนุน</button>
         </form>
     </div>
 

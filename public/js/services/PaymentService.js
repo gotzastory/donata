@@ -16,7 +16,7 @@ export class PaymentService {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Error processing payment');
+                throw new Error(errorData.error || 'เกิดข้อผิดพลาดในการชำระเงิน');
             }
 
             return await response.json();
