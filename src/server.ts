@@ -121,7 +121,7 @@ const createPayment: RequestHandler = async (req, res, next): Promise<void> => {
   try {
     const { amount, nickname, message } = req.body as PaymentRequest;
 
-    if (!amount || amount < 10) {
+    if (!amount || !Number.isFinite(amount) || amount < 10) {
       res.status(400).json({ error: 'Invalid amount' });
       return;
     }
@@ -130,15 +130,20 @@ const createPayment: RequestHandler = async (req, res, next): Promise<void> => {
       return;
     }
 
+    const unitAmount = Math.round(amount * 100);
+    const truncatedMessage = (message || '').slice(0, 500);
+    const truncatedNickname = nickname.slice(0, 500);
+
     const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card', 'promptpay'],
       line_items: [{
         price_data: {
           currency: 'thb',
           product_data: {
             name: 'Donate',
-            description: message || undefined,
+            description: truncatedMessage || undefined,
           },
-          unit_amount: amount * 100,
+          unit_amount: unitAmount,
         },
         quantity: 1,
       }],
@@ -147,8 +152,8 @@ const createPayment: RequestHandler = async (req, res, next): Promise<void> => {
       cancel_url: `${req.headers.origin}/cancel.html`,
       payment_intent_data: {
         metadata: {
-          nickname,
-          message: message || '',
+          nickname: truncatedNickname,
+          message: truncatedMessage,
         }
       }
     });

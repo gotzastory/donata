@@ -18,3 +18,11 @@ services:
     command: tunnel --no-autoupdate --url http://tips:3000
     depends_on:
       - tips
+
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe-cli
+    restart: unless-stopped
+    command: listen --api-key ${STRIPE_SECRET_KEY} --forward-to tips:3000/stripe-webhook
+    depends_on:
+      - tips
