@@ -39,6 +39,7 @@ Donata is a self-hosted donation system for streamers. Viewers donate via Stripe
 - **Ding sound + generated avatar** on every alert (no image assets required)
 - **Self-hosted**: full control over your data and infrastructure
 - **Docker Compose** setup that includes an optional Cloudflare Tunnel service, so you can expose your local server publicly without configuring router port forwarding
+- **Stripe CLI webhook forwarding** runs as its own container, delivering webhooks straight to the app over the Docker network — independent of the Cloudflare tunnel's rotating URL
 
 ## Architecture
 
@@ -70,14 +71,15 @@ cp .env.example .env
 docker compose up -d
 ```
 
-This starts two containers:
+This starts three containers:
 
 - `tips` — the app, served on `http://localhost:3002`
-- `cloudflared` — a Cloudflare Quick Tunnel exposing that port publicly (no account needed). The public URL is printed in its logs:
+- `cloudflared` — a Cloudflare Quick Tunnel exposing that port publicly (no account needed), for the donation form/overlay pages. The public URL is printed in its logs:
   ```bash
   docker compose logs cloudflared | grep trycloudflare.com
   ```
   The URL changes every time the stack restarts. If you need a stable URL, set up a [named Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps) with your own domain instead, or deploy to a VPS.
+- `stripe-cli` — forwards Stripe webhooks directly to the `tips` container over the Docker network (`stripe listen --forward-to tips:3000/stripe-webhook`). Since it talks to `tips` on the internal network, it works regardless of the `cloudflared` URL — webhook delivery doesn't depend on your public URL at all.
 
 ### Local development (without Docker)
 
@@ -103,15 +105,29 @@ In the [Stripe Dashboard → Payment methods](https://dashboard.stripe.com/setti
 
 ## Stripe Webhook Setup
 
-**Local development** — use the Stripe CLI, no public URL needed:
+**With Docker (default)** — the `stripe-cli` service already forwards webhooks to the app, no public URL needed, even for the deployed stack. Grab its signing secret from the logs on first run and put it in `.env`:
 
 ```bash
-stripe listen --forward-to localhost:3002/stripe-webhook
+docker compose logs stripe-cli | grep whsec_
+```
+
+Set that value as `STRIPE_WEBHOOK_SECRET`, then restart the app so it picks up the new secret:
+
+```bash
+docker compose up -d tips
+```
+
+If donations complete in Stripe but the overlay never fires, check `docker compose logs stripe-cli` first for signature/connection errors before suspecting the Cloudflare tunnel — the two are unrelated.
+
+**Without Docker (local dev)** — run the Stripe CLI yourself:
+
+```bash
+stripe listen --forward-to localhost:3000/stripe-webhook
 ```
 
 This prints a `whsec_...` secret — put it in `STRIPE_WEBHOOK_SECRET`.
 
-**Public / production** — in the [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks):
+**Public / production via Stripe Dashboard** (alternative to running `stripe-cli` long-term) — in the [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks):
 
 1. Add endpoint → `https://<your-public-url>/stripe-webhook`
 2. Listen for: `payment_intent.succeeded`
