@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,49 +11,43 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=Kanit:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=Kanit:wght@600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
 
     <div class="container">
         <h1>สนับสนุนช่อง GZ UKNOW</h1>
 
+        <div class="test-mode-banner" role="note">
+            <strong>โหมดทดสอบ:</strong><br>
+            บัตรเครดิต: เลขบัตร <code>4242 4242 4242 4242</code>,
+            วันหมดอายุอนาคต (เช่น 12/34), CVC 3 หลักใดก็ได้ (เช่น 123)<br>
+            PromptPay: กดเลือก PromptPay แล้วกดปุ่ม "Authorize Test Payment"
+            ใต้ QR code ได้เลย ไม่ต้องสแกนจริง<br>
+            ไม่มีการตัดเงินจริงทั้งสองแบบ
+        </div>
+
         <form id="payment-form" class="tip-form">
             <div class="input-group">
                 <label for="amount">จำนวนเงิน (บาท)</label>
-                <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    min="10"
-                    step="1"
-                    placeholder="ระบุจำนวนเงิน (ขั้นต่ำ 10 บาท)"
-                    required
-                >
+                <input type="number" id="amount" name="amount" min="10" step="1"
+                    placeholder="ระบุจำนวนเงิน (ขั้นต่ำ 10 บาท)" required>
             </div>
 
             <div class="input-group">
                 <label for="nickname">ชื่อของคุณ</label>
-                <input
-                    type="text"
-                    id="nickname"
-                    name="nickname"
-                    placeholder="ชื่อของคุณคืออะไร?"
-                    required
-                >
+                <input type="text" id="nickname" name="nickname" placeholder="ชื่อของคุณคืออะไร?" required>
             </div>
 
             <div class="input-group">
                 <label for="message">ข้อความ (ไม่บังคับ)</label>
-                <textarea
-                    id="message"
-                    name="message"
-                    rows="3"
-                    placeholder="ข้อความของคุณ..."
-                ></textarea>
+                <textarea id="message" name="message" rows="3" placeholder="ข้อความของคุณ..."></textarea>
             </div>
 
             <div id="error-message" class="error" role="alert" aria-live="polite"></div>
@@ -62,4 +57,5 @@
 
     <script type="module" src="/js/main.js"></script>
 </body>
+
 </html>
